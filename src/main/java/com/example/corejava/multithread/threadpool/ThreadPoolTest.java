@@ -8,25 +8,51 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <code>
+ * ThreadPoolExecutor exec = new ThreadPoolExecutor(
+ * int, int, long, TimeUnit, BlockingQueue<Runnable>, ThreadFactory, RejectedExecutionHandler);
+ * </code>
+ * 
+ * <p>
+ * <code>
+ * ScheduledThreadPoolExecutor scheduled = new ScheduledThreadPoolExecutor(
+ * int, ThreadFactory, RejectedExecutionHandler);
+ * </code>
+ * 
+ * <p>
+ * <strong>corePoolSize</strong> 核心线程数，线程池刚启动时为空，之后每次申请线程时即便有空闲线程，也会创建一个新线程，
+ * 直到达到corePoolSize。核心线程即使空闲也一直保持存活，
+ * 如果要允许核心线程超时关闭可以设置allowCoreThreadTimeOut为true
+ * 
+ * <p>
+ * <strong>maximumPoolSize</strong> 最大线程数
+ * 
+ * <p>
+ * <strong>keepAliveTime</strong> 超过核心线程数的多余线程，最大空闲时间
+ * 
+ * <p>
+ * <strong>unit</strong> keepAliveTime的时间单位
+ * 
+ * <p>
+ * <strong>workQueue</strong> 用于保存待执行任务的队列，这个队列只会保存execute方法提交的Runnable任务。
+ * 提交任务时如果达到核心线程数最大值，且任务队列未满，会添加到任务队列。
+ * 如果任务队列已满，且未达到最大线程数，则会创建多余线程
+ * 
+ * <p>
+ * <strong>threadFactory</strong> executor创建新线程时使用的工厂，默认为Executors.defaultThreadFactory()
+ * 
+ * <p>
+ * <strong>handler</strong> 由于达到最大线程数量和队列容量而阻塞执行时，要使用的处理程序，几种常用内部实现如下：
+ * AbortPolicy（默认），丢弃任务，抛出运行时异常
+ * CallerRunsPolicy，执行任务
+ * DiscardPolicy，丢弃任务
+ * DiscardOldestPolicy，从队列中踢出最老的任务
+ * 
+ * <p>
+ * 参数的确定，根据每秒提交任务数、每个任务执行所需时间、可容忍最大等待时间等因素来确定。
+ */
 public class ThreadPoolTest {
-
-    /**
-     * ThreadPoolExecutor exec = new ThreadPoolExecutor(
-     * int, int, long, TimeUnit, BlockingQueue<Runnable>, ThreadFactory, RejectedExecutionHandler);
-     * 
-     * ScheduledThreadPoolExecutor scheduled = new ScheduledThreadPoolExecutor(
-     * int, ThreadFactory, RejectedExecutionHandler);
-     * 
-     * @param corePoolSize    核心线程数，线程池刚启动时为空，之后每次申请线程时即便有空闲线程，也会创建一个新线程，
-     *                        直到达到corePoolSize。核心线程即使空闲也一直保持存活，
-     *                        如果要允许核心线程超时关闭可以设置allowCoreThreadTimeOut为true
-     * @param maximumPoolSize 最大线程数
-     * @param keepAliveTime   超过核心线程数的多余线程，最大空闲时间
-     * @param unit            keepAliveTime的时间单位
-     * @param workQueue       用于保存待执行任务的队列，这个队列只会保存execute方法提交的Runnable任务
-     * @param threadFactory   executor创建新线程时使用的工厂
-     * @param handler         由于达到最大线程数量和队列容量而阻塞执行时，要使用的处理程序
-     */
 
     // Executors.newCachedThreadPool();
     ExecutorService cached = new ThreadPoolExecutor(
