@@ -3,11 +3,11 @@ package com.example.corejava.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class TraceHandler implements InvocationHandler {
+public class JdkProxyTraceHandler implements InvocationHandler {
 
     private Object target;
 
-    public TraceHandler(Object target) {
+    public JdkProxyTraceHandler(Object target) {
         this.target = target;
     }
 

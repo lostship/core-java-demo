@@ -9,17 +9,19 @@ import com.example.corejava.classes.class1.Employee;
 import com.example.corejava.classes.class1.Greetable;
 import com.example.corejava.classes.class1.Manager;
 
-public class ProxyTest {
+public class JdkProxyTest {
 
     public static void main(String[] args) {
+        test1();
         test2();
     }
 
     private static void test1() {
         Employee target = new Manager("Tom", 1000, 500);
 
-        InvocationHandler traceHandler = new TraceHandler(target);
+        InvocationHandler traceHandler = new JdkProxyTraceHandler(target);
 
+        @SuppressWarnings("rawtypes")
         Class[] interfaces = new Class[] { Greetable.class };
 
         Object proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), interfaces, traceHandler);
@@ -28,11 +30,11 @@ public class ProxyTest {
     }
 
     private static void test2() {
-        Object[] arr = new Object[1000];
+        Object[] arr = new Object[100];
         for (int i = 0; i < arr.length; i++) {
             arr[i] = Proxy.newProxyInstance(null,
                     new Class[] { Comparable.class },
-                    new TraceHandler(Integer.valueOf(i + 1)));
+                    new JdkProxyTraceHandler(Integer.valueOf(i + 1)));
         }
 
         Integer value = new Random().nextInt(arr.length) + 1;
