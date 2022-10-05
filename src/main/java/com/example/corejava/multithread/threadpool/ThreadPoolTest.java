@@ -51,6 +51,33 @@ import java.util.concurrent.TimeUnit;
  * 
  * <p>
  * 参数的确定，根据每秒提交任务数、每个任务执行所需时间、可容忍最大等待时间等因素来确定。
+ * 
+ * <p>
+ * <code>
+ * 线程池运行机制：
+ * 
+ * 1.调用ThreadPoolExecutor.execute(Runnable firstTask)方法提交任务。
+ * 2.如果workerCount < corePoolSize，
+ *        则直接创建worker执行任务。
+ *    否则如果workerQueue可容纳新任务，
+ *        则将任务放入workQueue。
+ *    否则尝试直接创建worker执行任务，如果失败则执行RejectedExecutionHandler策略。
+ * 3.调用ThreadPoolExecutor.addWorker(firstTask)方法。
+ * 4.创建Worker implements Runnable的实例，
+ *    调用Worker(first)构造方法，其中调用getThreadFactory().newThread(this)，
+ *    将Worker实例自身作为该Worker关联的Thread实例的Runnable实参，
+ *    因此自会后执行Worker.thread.run()方法实际是执行Worker.run()方法。
+ * 5.将Worker实例加入workers集合。
+ * 6.调用Worker.thread.start()方法，即调用Worker.run()方法。
+ * 7.调用ThreadPoolExecutor.runWorker(worker)方法。
+ * 8.执行firstTask。
+ * 9.firstTask完成后，循环调用Worker.getTask()方法，从workQueue任务队列中获取待执行的任务，
+ *    如果当前线程数超过corePoolSize，或者开启了allowCoreThreadTimeOut，
+ *        使用workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS)获取任务，
+ *        这样如果未获取到任务，则该Worker空闲时间超过keepAliveTime，结束获取任务循环，该Worker被回收。
+ *    否则使用workQueue.take()，持续等待直到获取到任务，这样不会结束获取任务循环，Worker不会被回收。
+ * 10.如果获取到了待执行任务，Worker继续存活没有被回收，就不断重复执行和获取任务这一循环过程。
+ * </code>
  */
 public class ThreadPoolTest {
 
