@@ -3,6 +3,7 @@ package com.example.corejava.socket.l6;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -17,12 +18,43 @@ import java.util.Scanner;
 public class HalfCloseTest {
 
     public static void main(String[] args) {
-        try (Socket s = new Socket("localhost", 8191)) {
+        Thread server = new Thread(HalfCloseTest::startServer);
+        server.start();
+        Thread client = new Thread(HalfCloseTest::startClient);
+        client.start();
+    }
+
+    public static void startServer() {
+        try (ServerSocket server = new ServerSocket(8189)) {
+            try (Socket incoming = server.accept()) {
+                Scanner in = new Scanner(incoming.getInputStream(), "UTF-8");
+                PrintWriter out = new PrintWriter(new OutputStreamWriter(incoming.getOutputStream(), "UTF-8"), true);
+                out.println("Hello!");
+                while (in.hasNextLine()) {
+                    System.out.println(in.nextLine());
+                }
+                out.println("Bye!");
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public static void startClient() {
+        try (Socket s = new Socket("localhost", 8189)) {
             Scanner in = new Scanner(s.getInputStream(), "UTF-8");
-            PrintWriter out = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);
 
             // send request data
-            out.print("");
+            for (int i = 0; i < 10; i++) {
+                out.println("line" + i);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             out.flush();
             s.shutdownOutput();
             // now socket is half-closed
